@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Passadas de Ferro - Planilha Profissional</title>
+    <!-- SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            max-width: 1200px;
+            width: 100%;
+            padding: 24px;
+        }
+
+        /* Header responsivo */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .title-section h1 {
+            background: linear-gradient(135deg, #c4302b, #e65c4b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: clamp(1.8em, 5vw, 2.8em);
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .title-section .subtitle {
+            color: #4a4a6a;
+            font-size: clamp(0.9em, 3vw, 1.1em);
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .instagram-link {
+            background: linear-gradient(45deg, #f09433, #d62976, #962fbf, #4f5bd5);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: clamp(1em, 4vw, 1.2em);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.3s;
+            white-space: nowrap;
+        }
+
+        .instagram-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .instagram-link i {
+            font-size: 1.2em;
+        }
+
+        /* Seletor de modalidade responsivo */
+        .modalidade-selector {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 24px;
+            margin: 20px 0;
+        }
+
+        .modalidade-selector h3 {
+            font-size: clamp(1em, 4vw, 1.2em);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modalidade-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .modalidade-option input[type="radio"] {
+            display: none;
+        }
+
+        .modalidade-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            background: white;
+            border: 2px solid #e1e8f0;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            gap: 8px;
+            font-size: clamp(0.85em, 3vw, 1em);
+        }
+
+        .modalidade-option label .modalidade-icon {
+            font-size: clamp(1.5em, 5vw, 2em);
+        }
+
+        .modalidade-option input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #c4302b, #e65c4b);
+            border-color: #c4302b;
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(196,48,43,0.2);
+        }
+
+        /* Formulário responsivo */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #1a1a2e;
+            font-size: clamp(0.8em, 3vw, 0.9em);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-group label i {
+            font-size: 1em;
+            color: #c4302b;
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 12px 14px;
+            border: 2px solid #e1e8f0;
+            border-radius: 14px;
+            font-size: clamp(0.9em, 3.5vw, 1em);
+            transition: all 0.3s;
+            background: white;
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #c4302b;
+            box-shadow: 0 0 0 3px rgba(196,48,43,0.1);
+        }
+
+        /* Níveis responsivos */
+        .level-selector {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 24px;
+            margin: 20px 0;
+        }
+
+        .level-selector h3 {
+            font-size: clamp(1em, 4vw, 1.2em);
+            margin-bottom: 15px;
+        }
+
+        .level-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .level-option input[type="radio"] {
+            display: none;
+        }
+
+        .level-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 5px;
+            background: white;
+            border: 2px solid #e1e8f0;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            gap: 5px;
+            font-size: clamp(0.75em, 2.5vw, 0.9em);
+        }
+
+        .level-option label .level-icon {
+            font-size: clamp(1.2em, 4vw, 1.8em);
+        }
+
+        .level-option input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #c4302b, #e65c4b);
+            border-color: #c4302b;
+            color: white;
+        }
+
+        /* Botão responsivo */
+        .btn-generate {
+            background: linear-gradient(135deg, #c4302b, #e65c4b);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            font-size: clamp(1.1em, 5vw, 1.4em);
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-generate:active {
+            transform: scale(0.98);
+        }
+
+        .btn-generate i {
+            font-size: 1.2em;
+        }
+
+        /* Features responsivas */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 15px 10px;
+            background: #f8f9fa;
+            border-radius: 18px;
+        }
+
+        .feature-icon {
+            font-size: clamp(1.3em, 5vw, 2em);
+            color: #c4302b;
+            margin-bottom: 8px;
+        }
+
+        .feature-text {
+            font-size: clamp(0.8em, 3vw, 0.9em);
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        /* Footer responsivo */
+        .footer {
+            text-align: center;
+            color: #666;
+            font-size: clamp(0.8em, 3vw, 0.9em);
+            border-top: 2px solid #f0f0f0;
+            padding-top: 20px;
+            margin-top: 10px;
+        }
+
+        .footer a {
+            color: #c4302b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Ajustes para telas muito pequenas */
+        @media (max-width: 480px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .instagram-link {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .modalidade-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .level-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Ajustes para telas médias */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .level-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modalidade-options {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Melhorias de toque para mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .btn-generate,
+            .instagram-link,
+            .modalidade-option label,
+            .level-option label {
+                cursor: default;
+            }
+            
+            .input-group input,
+            .input-group select {
+                font-size: 16px; /* Previne zoom automático no iOS */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title-section">
+                <h1>PASSADAS DE FERRO</h1>
+                <div class="subtitle">
+                    <i class="fas fa-dumbbell" style="color: #c4302b;"></i> 
+                    Treino inteligente para todas as modalidades
+                </div>
+            </div>
+            <a href="https://instagram.com/passadasdeferro" target="_blank" class="instagram-link">
+                <i class="fab fa-instagram"></i>
+                @passadasdeferro
+            </a>
+        </div>
+
+        <!-- Seletor de modalidade -->
+        <div class="modalidade-selector">
+            <h3><i class="fas fa-sport" style="color: #c4302b;"></i> Escolha a modalidade:</h3>
+            <div class="modalidade-options">
+                <div class="modalidade-option">
+                    <input type="radio" name="modalidade" id="corrida" value="corrida" checked>
+                    <label for="corrida">
+                        <span class="modalidade-icon">🏃</span>
+                        <span class="modalidade-title">CORRIDA</span>
+                    </label>
+                </div>
+                <div class="modalidade-option">
+                    <input type="radio" name="modalidade" id="natacao" value="natacao">
+                    <label for="natacao">
+                        <span class="modalidade-icon">🏊</span>
+                        <span class="modalidade-title">NATAÇÃO</span>
+                    </label>
+                </div>
+                <div class="modalidade-option">
+                    <input type="radio" name="modalidade" id="academia" value="academia">
+                    <label for="academia">
+                        <span class="modalidade-icon">🏋️</span>
+                        <span class="modalidade-title">ACADEMIA</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <form id="treinoForm">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> Nome</label>
+                    <input type="text" id="nome" placeholder="Ex: João Silva" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-calendar"></i> Idade</label>
+                    <input type="number" id="idade" placeholder="Ex: 30" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-weight-scale"></i> Peso (kg)</label>
+                    <input type="number" id="peso" step="0.1" placeholder="Ex: 70.5" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-ruler"></i> Altura (cm)</label>
+                    <input type="number" id="altura" step="1" placeholder="Ex: 170" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-venus-mars"></i> Sexo</label>
+                    <select id="sexo">
+                        <option value="M">Masculino</option>
+                        <option value="F">Feminino</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-clock"></i> Frequência</label>
+                    <select id="frequencia">
+                        <option value="3">3 dias</option>
+                        <option value="4">4 dias</option>
+                        <option value="5">5 dias</option>
+                        <option value="6">6 dias</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-bullseye"></i> Objetivo</label>
+                    <select id="objetivo">
+                        <option value="performance">Performance</option>
+                        <option value="saude">Saúde</option>
+                        <option value="lazer">Lazer</option>
+                    </select>
+                </div>
+                <div class="input-group" id="campoExtra">
+                    <label><i class="fas fa-flag-checkered"></i> <span id="labelExtra">Distância alvo (km)</span></label>
+                    <input type="text" id="extra" placeholder="Ex: 10" required>
+                </div>
+            </div>
+
+            <!-- Níveis -->
+            <div class="level-selector">
+                <h3><i class="fas fa-chart-line" style="color: #c4302b;"></i> Nível de experiência:</h3>
+                <div class="level-options">
+                    <div class="level-option">
+                        <input type="radio" name="nivel" id="iniciante" value="iniciante" checked>
+                        <label for="iniciante"><span class="level-icon">🌱</span><span class="level-title">INICIANTE</span></label>
+                    </div>
+                    <div class="level-option">
+                        <input type="radio" name="nivel" id="intermediario" value="intermediario">
+                        <label for="intermediario"><span class="level-icon">⚡</span><span class="level-title">INTERMEDIÁRIO</span></label>
+                    </div>
+                    <div class="level-option">
+                        <input type="radio" name="nivel" id="avancado" value="avancado">
+                        <label for="avancado"><span class="level-icon">🔥</span><span class="level-title">AVANÇADO</span></label>
+                    </div>
+                    <div class="level-option">
+                        <input type="radio" name="nivel" id="profissional" value="profissional">
+                        <label for="profissional"><span class="level-icon">👑</span><span class="level-title">PROFISSIONAL</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn-generate" onclick="gerarPlanilha()">
+                <i class="fas fa-file-excel"></i> GERAR PLANILHA
+            </button>
+        </form>
+
+        <div class="features">
+            <div class="feature"><div class="feature-icon"><i class="fas fa-file-excel"></i></div><div class="feature-text">5 abas completas</div></div>
+            <div class="feature"><div class="feature-icon"><i class="fas fa-utensils"></i></div><div class="feature-text">Nutrição personalizada</div></div>
+            <div class="feature"><div class="feature-icon"><i class="fas fa-water"></i></div><div class="feature-text">3 modalidades</div></div>
+        </div>
+
+        <div class="footer">
+            <p><i class="fas fa-copyright"></i> 2026 Passadas de Ferro - <a href="https://instagram.com/passadasdeferro" target="_blank">@passadasdeferro</a></p>
+        </div>
+    </div>
+
+    <script>
+        // ================== AJUSTE DO CAMPO EXTRA ==================
+        const modalidadeRadios = document.querySelectorAll('input[name="modalidade"]');
+        const labelExtra = document.getElementById('labelExtra');
+        const extraInput = document.getElementById('extra');
+
+        function atualizarCampoExtra() {
+            const modalidade = document.querySelector('input[name="modalidade"]:checked').value;
+            if (modalidade === 'corrida') {
+                labelExtra.innerText = 'Distância alvo (km)';
+                extraInput.placeholder = 'Ex: 10';
+                extraInput.type = 'number';
+                extraInput.step = '0.1';
+            } else if (modalidade === 'natacao') {
+                labelExtra.innerText = 'Distância alvo (metros)';
+                extraInput.placeholder = 'Ex: 1500';
+                extraInput.type = 'number';
+                extraInput.step = '1';
+            } else {
+                labelExtra.innerText = 'Foco (ex: hipertrofia)';
+                extraInput.placeholder = 'Ex: hipertrofia';
+                extraInput.type = 'text';
+                extraInput.removeAttribute('step');
+            }
+        }
+        modalidadeRadios.forEach(radio => radio.addEventListener('change', atualizarCampoExtra));
+
+        // ================== FUNÇÃO PRINCIPAL ==================
+        function gerarPlanilha() {
+            // Coletar dados
+            const nome = document.getElementById('nome').value.trim();
+            const idade = parseInt(document.getElementById('idade').value);
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseInt(document.getElementById('altura').value);
+            const sexo = document.getElementById('sexo').value;
+            const frequencia = parseInt(document.getElementById('frequencia').value);
+            const objetivo = document.getElementById('objetivo').value;
+            const nivel = document.querySelector('input[name="nivel"]:checked').value;
+            const modalidade = document.querySelector('input[name="modalidade"]:checked').value;
+            const extra = document.getElementById('extra').value;
+
+            if (!nome || !idade || !peso || !altura || !extra) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            // Cálculos
+            const imc = peso / ((altura/100) ** 2);
+            let tmb = (sexo === 'M') 
+                ? 10*peso + 6.25*altura - 5*idade + 5 
+                : 10*peso + 6.25*altura - 5*idade - 161;
+            const fatorAtv = {3:1.375,4:1.55,5:1.725,6:1.9};
+            const calorias = Math.round(tmb * fatorAtv[frequencia]);
+
+            // Criar workbook
+            const wb = XLSX.utils.book_new();
+
+            // ================== ABA 1: DIAGNÓSTICO ==================
+            const diagData = [
+                ['PASSADAS DE FERRO - DIAGNÓSTICO COMPLETO'],
+                [],
+                ['DADOS PESSOAIS', 'VALOR', 'CLASSIFICAÇÃO'],
+                ['Nome', nome, ''],
+                ['Idade', idade + ' anos', classificarIdade(idade)],
+                ['Peso', peso + ' kg', ''],
+                ['Altura', altura + ' cm', ''],
+                ['Sexo', sexo === 'M' ? 'Masculino' : 'Feminino', ''],
+                ['IMC', imc.toFixed(2), classificarIMC(imc)],
+                ['Modalidade', modalidade.toUpperCase(), ''],
+                ['Nível', nivel.toUpperCase(), ''],
+                ['Calorias diárias', calorias + ' kcal', ''],
+                ['Frequência', frequencia + ' dias/semana', ''],
+                [],
+                ['INSTAGRAM', '@passadasdeferro', 'Siga para mais dicas!']
+            ];
+            
+            const wsDiag = XLSX.utils.aoa_to_sheet(diagData);
+            wsDiag['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 30 }];
+            
+            // Título principal
+            const tituloCell = wsDiag['A1'];
+            if (tituloCell) {
+                tituloCell.s = {
+                    font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } },
+                    fill: { fgColor: { rgb: 'C4302B' } },
+                    alignment: { horizontal: 'center' }
+                };
+            }
+
+            // Cabeçalho da tabela
+            const cabecalhoCell = wsDiag['A3'];
+            if (cabecalhoCell) {
+                cabecalhoCell.s = {
+                    font: { bold: true, sz: 12, color: { rgb: 'FFFFFF' } },
+                    fill: { fgColor: { rgb: 'C4302B' } },
+                    alignment: { horizontal: 'center' }
+                };
+            }
+            
+            XLSX.utils.book_append_sheet(wb, wsDiag, '01. Diagnóstico');
+
+            // ================== ABA 2: PLANO DE TREINO ==================
+            const planoTreino = montarPlanoTreino(modalidade, nivel, extra, frequencia);
+            const wsTreino = XLSX.utils.aoa_to_sheet(planoTreino);
+            wsTreino['!cols'] = [{ wch: 12 }, { wch: 30 }, { wch: 25 }, { wch: 15 }, { wch: 30 }];
+            
+            // Estilo título
+            const tituloTreino = wsTreino['A1'];
+            if (tituloTreino) {
+                tituloTreino.s = {
+                    font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } },
+                    fill: { fgColor: { rgb: 'C4302B' } },
+                    alignment: { horizontal: 'center' }
+                };
+            }
+            
+            // Estilo cabeçalho da tabela
+            const cabecalhoTreino = wsTreino['A3'];
+            if (cabecalhoTreino) {
+                cabecalhoTreino.s = {
+                    font: { bold: true, sz: 12, color: { rgb: 'FFFFFF' } },
+                    fill: { fgColor: { rgb: 'C4302B' } },
+                    alignment: { horizontal: 'center' }
+                };
+            }
+            
+            XLSX.utils.book_append_sheet(wb, wsTreino, '02. Plano de Treino');
+
+            // ================== ABA 3: NUTRIÇÃO ==================
+            const nutricaoData = [
+                ['NUTRIÇÃO ESPORTIVA - PASSADAS DE FERRO'],
+                [],
+                ['MACROS', 'QUANTIDADE (g)', 'FUNÇÃO', 'ALIMENTOS RECOMENDADOS'],
+                ['Carboidratos', Math.round(peso * 5), 'Energia', 'Massas, arroz, batata, frutas, aveia'],
+                ['Proteínas', Math.round(peso * 1.8), 'Músculos', 'Frango, peixe, ovos, whey, leguminosas'],
+                ['Gorduras', Math.round(peso * 1.1), 'Hormônios', 'Abacate, castanhas, azeite, peixes gordos'],
+                [],
+                ['HIDRATAÇÃO', 'VOLUME', 'MOMENTO'],
+                ['Água diária', (peso*0.035).toFixed(1) + 'L', 'Durante o dia'],
+                ['Pré-treino', '500ml', '2h antes'],
+                ['Durante', '150-300ml', 'A cada 20 min'],
+                ['Pós-treino', '500-700ml', 'Imediato'],
+                [],
+                ['Siga @passadasdeferro para receitas!']
+            ];
+            
+            const wsNutri = XLSX.utils.aoa_to_sheet(nutricaoData);
+            wsNutri['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 35 }];
+            
+            // Estilo título
+            const tituloNutri = wsNutri['A1'];
+            if (tituloNutri) {
+                tituloNutri.s = {
+                    font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } },
+                    fill: { fgColor: { rgb: 'C4302B' } },
+                    alignment: { horizontal: 'center' }
+                };
+            }
+            
+            XLSX.utils.book_append_sheet(wb, wsNutri, '03. Nutrição');
+
+            // ================== ABA 4: PERFORMANCE ==================
+            const dicasData = [
+                ['DICAS DE PERFORMANCE - PASSADAS DE FERRO'],
+                [`Modalidade: ${modalidade.toUpperCase()} | Nível: ${nivel.toUpperCase()}`],
+                [],
+                ...getDicasPerformance(modalidade),
+                [],
+                ['📱 Siga @passadasdeferro no Instagram!']
+            ];
+            
+            const wsDicas = XLSX.utils.aoa_to_sheet(dicasData);
+            wsDicas['!cols'] = [{ wch: 80 }];
+            
+            const tituloDicas = wsDicas['A1'];
+            if (tituloDicas) {
+                tituloDicas.s = {
+                    font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } },
+                    fill: { fgColor: { rgb: 'C4302B' } },
+                    alignment: { horizontal: 'center' }
+                };
+            }
+            
+            XLSX.utils.book_append_sheet(wb, wsDicas, '04. Performance');
+
+            // ================== ABA 5: INSTAGRAM ==================
+            const instaData = [
+                ['PASSADAS DE FERRO NO INSTAGRAM'],
+                [],
+                ['📱 @passadasdeferro'],
+                ['🔗 instagram.com/passadasdeferro'],
+                [],
+                ['CONTEÚDO DIÁRIO:'],
+                ['✅ Treinos e planilhas'],
+                ['✅ Nutrição esportiva'],
+                ['✅ Lives com especialistas'],
+                ['✅ Desafios e sorteios'],
+                [],
+                ['🎯 USE A HASHTAG #PassadasDeFerro'],
+                [],
+                [`Planilha gerada em: ${new Date().toLocaleDateString('pt-BR')}`]
+            ];
+            
+            const wsInsta = XLSX.utils.aoa_to_sheet(instaData);
+            wsInsta['!cols'] = [{ wch: 50 }];
+            
+            const tituloInsta = wsInsta['A1'];
+            if (tituloInsta) {
+                tituloInsta.s = {
+                    font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } },
+                    fill: { fgColor: { rgb: 'C4302B' } },
+                    alignment: { horizontal: 'center' }
+                };
+            }
+            
+            XLSX.utils.book_append_sheet(wb, wsInsta, '05. Instagram');
+
+            // Salvar arquivo
+            try {
+                const nomeArquivo = `PassadasDeFerro_${modalidade}_${nome.replace(/\s+/g, '_')}.xlsx`;
+                XLSX.writeFile(wb, nomeArquivo);
+            } catch (error) {
+                console.error('Erro ao gerar planilha:', error);
+                alert('Erro ao gerar planilha. Tente novamente.');
+            }
+        }
+
+        // ================== FUNÇÕES AUXILIARES ==================
+        function classificarIdade(idade) {
+            if (idade < 20) return 'Jovem';
+            if (idade < 30) return 'Adulto jovem';
+            if (idade < 40) return 'Adulto';
+            if (idade < 50) return 'Master';
+            return 'Sênior';
+        }
+
+        function classificarIMC(imc) {
+            if (imc < 18.5) return 'Abaixo do peso';
+            if (imc < 25) return 'Normal';
+            if (imc < 30) return 'Sobrepeso';
+            return 'Obesidade';
+        }
+
+        function montarPlanoTreino(modalidade, nivel, extra, frequencia) {
+            const cabecalho = ['DIA', 'TIPO DE TREINO', 'DETALHES', 'VOLUME', 'OBSERVAÇÕES'];
+
+            let linhas = [];
+            if (modalidade === 'corrida') {
+                const km = parseFloat(extra) || 10;
+                linhas = [
+                    ['Segunda', 'Corrida regenerativa', 'Leve', `${Math.round(km*0.4)}km`, 'Recuperação ativa'],
+                    ['Terça', 'Intervalado', 'Tiros de 400m', '6x400m', 'Pace forte, recuperação 400m'],
+                    ['Quarta', 'Descanso', '-', '-', 'Alongamento'],
+                    ['Quinta', 'Tempo run', 'Ritmo limiar', `${Math.round(km*0.6)}km`, 'Confortavelmente difícil'],
+                    ['Sexta', 'Corrida moderada', 'Ritmo constante', `${Math.round(km*0.5)}km`, ''],
+                    ['Sábado', 'Corrida longa', 'Resistência', `${Math.round(km*0.8)}km`, 'Hidratação'],
+                    ['Domingo', 'Descanso', '-', '-', 'Recuperação total']
+                ];
+            } else if (modalidade === 'natacao') {
+                const metros = parseFloat(extra) || 1500;
+                linhas = [
+                    ['Segunda', 'Técnica', 'Drills de nado', '800m', 'Foco na braçada'],
+                    ['Terça', 'Séries', 'Intervalado', '12x50m', 'Descanso 20s'],
+                    ['Quarta', 'Descanso', '-', '-', 'Alongamento em seco'],
+                    ['Quinta', 'Resistência', 'Nado contínuo', `${Math.round(metros*0.6)}m`, 'Ritmo moderado'],
+                    ['Sexta', 'Velocidade', 'Séries curtas', '8x25m máx', 'Recuperação total'],
+                    ['Sábado', 'Fundo', 'Nado longo', `${Math.round(metros*0.8)}m`, 'Controle de respiração'],
+                    ['Domingo', 'Descanso', '-', '-', 'Recuperação']
+                ];
+            } else {
+                linhas = [
+                    ['Segunda', 'Peito/Tríceps', 'Supino, crucifixo, tríceps', '3x10-12', ''],
+                    ['Terça', 'Costas/Bíceps', 'Puxada, remada, rosca', '3x10-12', ''],
+                    ['Quarta', 'Pernas', 'Agachamento, leg press', '4x10', 'Fortalecimento'],
+                    ['Quinta', 'Ombros/Abs', 'Desenvolvimento, elevação', '3x12', ''],
+                    ['Sexta', 'Cardio + funcional', 'Circuito metabólico', '30 min', 'Queima calórica'],
+                    ['Sábado', 'Treino livre', 'Foco em pontos fracos', '45 min', ''],
+                    ['Domingo', 'Descanso', '-', '-', 'Recuperação']
+                ];
+            }
+            return [ 
+                [`PLANO DE TREINO - ${modalidade.toUpperCase()} | Nível: ${nivel.toUpperCase()}`], 
+                [], 
+                cabecalho, 
+                ...linhas 
+            ];
+        }
+
+        function getDicasPerformance(modalidade) {
+            if (modalidade === 'corrida') {
+                return [
+                    ['1. Treino intervalado: 8x400m para ganho de velocidade.'],
+                    ['2. Corrida longa: aumente 10% por semana.'],
+                    ['3. Fortalecimento: agachamento e prancha 2x/semana.'],
+                    ['4. Hidratação: 500ml 2h antes.'],
+                    ['5. Cadência: tente 180 passos/min.']
+                ];
+            } else if (modalidade === 'natacao') {
+                return [
+                    ['1. Técnica: drills de braçada e pernada.'],
+                    ['2. Respiração bilateral: melhora simetria.'],
+                    ['3. Séries descendentes: ex: 4x100m diminuindo tempo.'],
+                    ['4. Uso de palmar e nadadeiras para força.'],
+                    ['5. Alongamento de ombros diário.']
+                ];
+            } else {
+                return [
+                    ['1. Progressão de carga: aumente 2-5kg por semana.'],
+                    ['2. Execute o movimento completo, sem roubar.'],
+                    ['3. Descanse 48h entre grupos musculares.'],
+                    ['4. Consuma proteína 30min pós-treino.'],
+                    ['5. Varie os estímulos a cada 6 semanas.']
+                ];
+            }
+        }
+    </script>
+</body>
+</html>
